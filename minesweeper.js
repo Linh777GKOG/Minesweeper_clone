@@ -35,3 +35,38 @@ export function createBoard(boardSize, numberOfMines) {
 
   return board;
 }
+
+export function markTile(tile) {
+  if (
+    tile.status !== TILE_STATUSES.HIDDEN &&
+    tile.status !== TILE_STATUSES.MARKED
+  ) {
+    return;
+  }
+
+  if (tile.status === TILE_STATUSES.MARKED) {
+    tile.status = TILE_STATUSES.HIDDEN;
+  } else {
+    tile.status = TILE_STATUSES.MARKED;
+  }
+}
+
+export function revealTile(board, tile) {
+  if (tile.status !== TILE_STATUSES.HIDDEN) {
+    return;
+  }
+
+  if (tile.mine) {
+    tile.status = TILE_STATUSES.MINE;
+    return;
+  }
+
+  tile.status = TILE_STATUSES.NUMBER;
+  const adjacentTiles = nearbyTiles(board, tile);
+  const mines = adjacentTiles.filter((t) => t.mine);
+  if (mines.length === 0) {
+    adjacentTiles.forEach(revealTile.bind(null, board));
+  } else {
+    tile.element.textContent = mines.length;
+  }
+}
